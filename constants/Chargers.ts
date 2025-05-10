@@ -150,3 +150,14 @@ export const Chargers = [
     connector_types: ["lvl2dc-2"],
   },
 ];
+
+export interface ChargerDetails {
+  name: string;
+  id: string;
+  address: string;
+  distance: string;
+  distance_metrics: string;
+  latitude: string;
+  longitude: string;
+  connector_types: string[];
+}
