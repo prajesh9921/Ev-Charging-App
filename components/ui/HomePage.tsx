@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, FlatList, StyleSheet, View } from "react-native";
+import { Alert, Dimensions, FlatList, StyleSheet, View } from "react-native";
 
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 
 import CustomMarker from "@/components/CustomMarker";
 import { ChargerDetails, Chargers } from "@/constants/Chargers";
+import * as MediaLibrary from "expo-media-library";
 import { FAB } from "react-native-paper";
 import {
   ASPECT_RATIO,
@@ -91,6 +92,37 @@ const HomePage = () => {
     }); // Move to the card location
   };
 
+  const takeMapSnapshot = async () => {
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Denied",
+          "Please enable media library access to save the snapshot."
+        );
+        return;
+      }
+      if (mapRef.current) {
+        mapRef.current
+          .takeSnapshot({
+            format: "png",
+            result: "file",
+          })
+          .then(async (uri) => {
+            // uri is a path to the image on the local storage
+            await MediaLibrary.saveToLibraryAsync(uri);
+            alert("Map snapshot saved to library!");
+          })
+          .catch((error) => {
+            console.error("takeSnapshot failed", error);
+          });
+      }
+    } catch (error) {
+      console.log("Error taking map snapshot:", error);
+      Alert.alert("Error", "An error occurred while taking the snapshot.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -143,7 +175,7 @@ const HomePage = () => {
         icon="camera"
         onPress={() => {
           console.log("FAB pressed");
-          goToSpecificLocation(); // Call the function to move to the location
+          takeMapSnapshot(); // Call the function to capture map snapshot
         }}
       />
     </View>
@@ -163,7 +195,7 @@ const styles = StyleSheet.create({
   fab: {
     position: "absolute",
     margin: 16,
-    left: 0,
+    right: 0,
     bottom: 0,
   },
   cardContainer: {
