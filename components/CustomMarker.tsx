@@ -16,17 +16,23 @@ export default CustomMarker;
 const styles = StyleSheet.create({
   customMarker: {
     backgroundColor: "rgba(255,0,0,0.5)",
-    padding: 10,
-    borderRadius: 20,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderColor: "#fff",
     borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   customMarkerSelected: {
     backgroundColor: "rgba(0,255,0,0.5)",
-    padding: 10,
-    borderRadius: 20,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderColor: "#fff",
     borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   markerText: {
     color: "#fff",
