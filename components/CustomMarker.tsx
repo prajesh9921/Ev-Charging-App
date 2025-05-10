@@ -2,7 +2,7 @@ import { ChargerDetails } from "@/constants/Chargers";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-const CustomMarker = ({ charger, currentLocation }: { charger: ChargerDetails, currentLocation: ChargerDetails }) => {
+const CustomMarker = ({ charger, currentLocation }: { charger: ChargerDetails, currentLocation: ChargerDetails | null}) => {
   const isSelected = currentLocation?.id === charger.id;
   return (
     <View style={isSelected ? styles.customMarkerSelected : styles.customMarker}>
