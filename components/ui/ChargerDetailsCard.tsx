@@ -102,7 +102,6 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 16,
     flexDirection: "row",
-    flex: 1,
   },
   title: {
     flex: 1,
