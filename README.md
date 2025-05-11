@@ -1,5 +1,7 @@
 # EV Charging App
 
+EV charging app built using Expo. To run locally you need to download expo go app on mobile and follow below steps. 
+
 ## Getting Started
 
 Follow these steps to run the application locally:
@@ -21,6 +23,9 @@ Follow these steps to run the application locally:
    npm start
    # or
    yarn start
+
+### Note
+Configured only for Android due to system limitations.
 
 ### Images
 ![WhatsApp Image 2025-05-11 at 9 59 45 PM](https://github.com/user-attachments/assets/6979cda1-da2a-4d10-b902-c3fd59869b74)
