@@ -1,12 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Alert, Dimensions, FlatList, StyleSheet, View } from "react-native";
-
-import * as Location from "expo-location";
-import MapView, { Marker } from "react-native-maps";
-
 import CustomMarker from "@/components/CustomMarker";
 import { ChargerDetails, Chargers } from "@/constants/Chargers";
+import * as AuthSession from "expo-auth-session";
+import * as Google from "expo-auth-session/providers/google";
+import * as FileSystem from "expo-file-system";
+import * as Location from "expo-location";
 import * as MediaLibrary from "expo-media-library";
+import * as WebBrowser from "expo-web-browser";
+import React, { useEffect, useRef, useState } from "react";
+import { Alert, Dimensions, FlatList, StyleSheet, View } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import { FAB } from "react-native-paper";
 import {
   ASPECT_RATIO,
@@ -15,7 +17,10 @@ import {
 } from "../helper/locationHelper";
 import ChargerDetailsCard from "./ChargerDetailsCard";
 
+WebBrowser.maybeCompleteAuthSession();
 const { width } = Dimensions.get("window");
+
+const GOOGLE_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
 
 const HomePage = () => {
   const [location, setLocation] = useState<any>(null);
@@ -24,7 +29,15 @@ const HomePage = () => {
   const [selectedCharger, setSelectedCharger] = useState<ChargerDetails | null>(
     null
   );
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const mapRef = useRef<MapView>(null); // Create a ref for the MapView
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId:
+      "39908928051-i15tosojdlp2j1und8nhdt8jjpq8nlvf.apps.googleusercontent.com",
+    scopes: ["profile", "email", GOOGLE_DRIVE_SCOPE],
+    redirectUri: AuthSession.makeRedirectUri({useProxy: true}),
+  });
 
   useEffect(() => {
     (async () => {
@@ -38,6 +51,12 @@ const HomePage = () => {
       setLocation(currentLocation);
     })();
   }, []);
+
+  useEffect(() => {
+    if (response?.type === "success") {
+      setAccessToken(response.authentication?.accessToken || null);
+    }
+  }, [response]);
 
   let text = "Waiting for location...";
   if (errorMsg) {
@@ -92,6 +111,103 @@ const HomePage = () => {
     }); // Move to the card location
   };
 
+  // const uploadToGoogleDrive = async (uri: string) => {
+  //   const fileInfo = await FileSystem.getInfoAsync(uri);
+  //   const fileName = "map_snapshot.webp";
+
+  //   const form = new FormData();
+  //    form.append("metadata", {
+  //   string: JSON.stringify({
+  //     name: fileName,
+  //     mimeType: "image/png",
+  //   }),
+  //   type: "application/json",
+  // } as any);
+
+  //   form.append("file", {
+  //     uri: fileInfo.uri,
+  //     name: fileName,
+  //     type: "image/png",
+  //   } as any);
+
+  //   try {
+  //     const res = await fetch(
+  //       "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //         body: form,
+  //       }
+  //     );
+
+  //     const json = await res.json();
+  //     if (json.id) {
+  //       Alert.alert(
+  //         "Uploaded",
+  //         `Snapshot uploaded to Google Drive! File ID: ${json.id}`
+  //       );
+  //     } else {
+  //       console.log("Failed to upload", JSON.stringify(json));
+  //       Alert.alert("Failed", JSON.stringify(json));
+  //     }
+  //   } catch (error) {
+  //     console.error("Drive upload error", error);
+  //     console.log("Error uploading to Google Drive:", error);
+  //     Alert.alert("Upload Error", "Failed to upload image.");
+  //   }
+  // };
+
+  const uploadToGoogleDrive = async (uri: string) => {
+    const fileInfo = await FileSystem.getInfoAsync(uri);
+    const fileName = "map_snapshot.png"; // use .png for consistency
+
+    const form = new FormData();
+
+    form.append("metadata", {
+      string: JSON.stringify({
+        name: fileName,
+        mimeType: "image/png",
+      }),
+      type: "application/json",
+    } as any);
+
+    form.append("file", {
+      uri: fileInfo.uri,
+      name: fileName,
+      type: "image/png",
+    } as any);
+
+    try {
+      const res = await fetch(
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "multipart/related",
+          },
+          body: form,
+        }
+      );
+
+      const json = await res.json();
+      if (json.id) {
+        Alert.alert(
+          "Uploaded",
+          `Snapshot uploaded to Google Drive! File ID: ${json.id}`
+        );
+      } else {
+        console.log("Failed to upload", JSON.stringify(json));
+        Alert.alert("Failed", JSON.stringify(json));
+      }
+    } catch (error) {
+      console.error("Drive upload error", error);
+      Alert.alert("Upload Error", "Failed to upload image.");
+    }
+  };
+
   const takeMapSnapshot = async () => {
     try {
       const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -102,6 +218,21 @@ const HomePage = () => {
         );
         return;
       }
+
+      // if (!accessToken) {
+      //   const authResult = await promptAsync();
+      //   if (authResult?.type === "success") {
+      //     const token = authResult.authentication?.accessToken;
+      //     setAccessToken(token ?? null);
+      //   } else {
+      //     Alert.alert(
+      //       "Login required",
+      //       "You must sign in to upload the snapshot."
+      //     );
+      //     return;
+      //   }
+      // }
+
       if (mapRef.current) {
         mapRef.current
           .takeSnapshot({
@@ -111,6 +242,7 @@ const HomePage = () => {
           .then(async (uri) => {
             // uri is a path to the image on the local storage
             await MediaLibrary.saveToLibraryAsync(uri);
+            // await uploadToGoogleDrive(uri);
             alert("Map snapshot saved to library!");
           })
           .catch((error) => {

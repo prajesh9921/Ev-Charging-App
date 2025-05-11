@@ -37,13 +37,13 @@ const ChargerDetailsCard: React.FC<ChargerDetailsCardProps> = ({
 
   const getConnectionText = (type: string) => {
     if (type.includes("lvl1")) {
-      return "Level 1 DC";
+      return { dc: "Level 1 DC", info: "15kW Fast Charging" };
     }
     if (type.includes("lvl2")) {
-      return "Level 2 DC";
+      return { dc: "Level 2 DC", info: "50kW Fast Charging" };
     }
     if (type.includes("normal")) {
-      return "Normal AC";
+      return { dc: "Normal AC", info: "3kW Fast Charging" };
     }
   };
   return (
@@ -69,14 +69,21 @@ const ChargerDetailsCard: React.FC<ChargerDetailsCardProps> = ({
           console.log("Connector type:", type);
           return (
             <View style={styles.connectorItem} key={index}>
-              <Image
-                source={getConnectorIcon(type)}
-                style={styles.connectorIcon}
-              />
-              <Text style={styles.connectorText}>
-                {getConnectionText(type)}
-              </Text>
-              <Text style={styles.connectorCount}>x2</Text>
+              <View style={{ flexDirection: "row", flex: 1 }}>
+                <Image
+                  source={getConnectorIcon(type)}
+                  style={styles.connectorIcon}
+                />
+                <View style={styles.info}>
+                  <Text style={styles.connectorText}>
+                    {getConnectionText(type)?.dc}
+                  </Text>
+                  <Text style={styles.connectorSubText}>
+                    {getConnectionText(type)?.info}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.connectorCount}>x{type.split('-')[1]}</Text>
             </View>
           );
         })}
@@ -86,6 +93,9 @@ const ChargerDetailsCard: React.FC<ChargerDetailsCardProps> = ({
 };
 
 const styles = StyleSheet.create({
+  info: {
+    flexDirection: "column",
+  },
   card: {
     backgroundColor: "#242424",
     borderRadius: 8,
@@ -122,7 +132,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     marginBottom: 8,
-    color: "#fff",
+    color: "#4cb29b",
   },
   connectorItem: {
     flexDirection: "row",
@@ -144,8 +154,14 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#fff",
   },
+  connectorSubText: {
+    flex: 1,
+    color: "#A0A0A0",
+  },
   connectorCount: {
     color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16
   },
 });
 
