@@ -71,7 +71,7 @@ const HomePage = () => {
     latitudeDelta: number;
     longitudeDelta: number;
   }) => {
-    // Example coordinates (replace with your desired location)
+    // Example coordinates
     const fallbackLocation = {
       latitude: 28.5215,
       longitude: 77.2041,
@@ -111,57 +111,9 @@ const HomePage = () => {
     }); // Move to the card location
   };
 
-  // const uploadToGoogleDrive = async (uri: string) => {
-  //   const fileInfo = await FileSystem.getInfoAsync(uri);
-  //   const fileName = "map_snapshot.webp";
-
-  //   const form = new FormData();
-  //    form.append("metadata", {
-  //   string: JSON.stringify({
-  //     name: fileName,
-  //     mimeType: "image/png",
-  //   }),
-  //   type: "application/json",
-  // } as any);
-
-  //   form.append("file", {
-  //     uri: fileInfo.uri,
-  //     name: fileName,
-  //     type: "image/png",
-  //   } as any);
-
-  //   try {
-  //     const res = await fetch(
-  //       "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           Authorization: `Bearer ${accessToken}`,
-  //         },
-  //         body: form,
-  //       }
-  //     );
-
-  //     const json = await res.json();
-  //     if (json.id) {
-  //       Alert.alert(
-  //         "Uploaded",
-  //         `Snapshot uploaded to Google Drive! File ID: ${json.id}`
-  //       );
-  //     } else {
-  //       console.log("Failed to upload", JSON.stringify(json));
-  //       Alert.alert("Failed", JSON.stringify(json));
-  //     }
-  //   } catch (error) {
-  //     console.error("Drive upload error", error);
-  //     console.log("Error uploading to Google Drive:", error);
-  //     Alert.alert("Upload Error", "Failed to upload image.");
-  //   }
-  // };
-
   const uploadToGoogleDrive = async (uri: string) => {
     const fileInfo = await FileSystem.getInfoAsync(uri);
-    const fileName = "map_snapshot.png"; // use .png for consistency
+    const fileName = "map_snapshot.png";
 
     const form = new FormData();
 
@@ -240,9 +192,7 @@ const HomePage = () => {
             result: "file",
           })
           .then(async (uri) => {
-            // uri is a path to the image on the local storage
             await MediaLibrary.saveToLibraryAsync(uri);
-            // await uploadToGoogleDrive(uri);
             alert("Map snapshot saved to library!");
           })
           .catch((error) => {
