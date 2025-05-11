@@ -3,7 +3,7 @@ import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 interface ChargerDetailsCardProps {
-  charger: any; // Replace 'any' with your ChargerDetails type if available
+  charger: any;
   onPress: (charger: ChargerDetails) => void;
 }
 
@@ -12,13 +12,12 @@ const ChargerDetailsCard: React.FC<ChargerDetailsCardProps> = ({
   onPress,
 }) => {
   const handlePress = () => {
-    // Handle the press event here
     console.log("Charger pressed:", charger);
-    onPress(charger); // Call the onPress function passed as a prop
+    onPress(charger); 
   };
 
   const connectorTypeIcons: { [key: string]: any } = {
-    "Level 1 DC": require("@/assets/icons/charger1.png"), // Replace with your actual image paths
+    "Level 1 DC": require("@/assets/icons/charger1.png"),
     "Level 2 DC": require("@/assets/icons/charger1.png"),
     "Normal AC": require("@/assets/icons/charger2.png"),
   };
@@ -101,7 +100,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     marginHorizontal: 10,
-    width: 300, // Adjust as needed
+    width: 300,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
